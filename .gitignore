@@ -1,0 +1,33 @@
+# Python environments and generated cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.streamlit/
+
+# Large datasets — download separately; never commit raw images
+/data/*
+!/data/README.md
+!/data/.gitkeep
+
+# Trained weights can exceed GitHub's file-size limit
+/models/*
+!/models/labels.json
+!/models/model_metadata.json
+!/models/.gitkeep
+*.pt
+*.pth
+*.onnx
+
+# Generated evaluation output and local operating-system files
+/outputs/evaluation/
+*.log
+.DS_Store
+Thumbs.db
+
+# Archives and experiment artifacts
+*.zip
+*.tar
+*.tar.gz
+wandb/

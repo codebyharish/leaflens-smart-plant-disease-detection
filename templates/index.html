@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeafLens | Plant health screening</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M39 7C23 7 11 15 10 31c7 4 17 1 23-5C39 20 41 12 39 7Z"/><path d="M10 39c7-10 14-16 25-23"/></svg></span><span>LeafLens<small>PLANT HEALTH</small></span></a>
+    <div class="side-block"><p class="side-kicker">How it works</p><p class="side-copy">Upload a leaf image. AI suggests a crop, condition, confidence, and next actions.</p></div>
+    <div class="side-block"><p class="side-kicker">Photo guide</p><div class="tip">☀ <span>Use natural daylight</span></div><div class="tip">◉ <span>Keep one leaf sharp</span></div><div class="tip">⌁ <span>Show affected areas</span></div></div>
+    <div class="side-block history"><p class="side-kicker">Recent checks</p>
+      {% if recent %}{% for item in recent %}<div class="history-item"><span>{{ item.crop }}</span><small>{{ item.condition }} · {{ item.confidence }}%</small></div>{% endfor %}
+      {% else %}<p class="empty-history">Your recent checks will appear here.</p>{% endif %}
+    </div>
+    <div class="side-note">Screening support only. Confirm treatments with a local agriculture professional.</div>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">SMART CROP CARE</p><h1>Know your plant.<br><em>Act with confidence.</em></h1><p class="hero-copy">A clear, friendly first screen for leaf disease—built for crop growers and home gardeners.</p></div>
+      <div class="hero-orb"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M99 18C62 18 34 36 30 72c16 12 43 3 57-11 15-15 17-31 12-43Z"/><path d="M29 99c19-26 37-44 69-68"/></svg></div>
+    </section>
+
+    <section class="upload-card">
+      <div class="upload-heading"><div><p class="eyebrow green">NEW CHECK</p><h2>Check a plant leaf</h2></div><span class="secure">Private local analysis</span></div>
+      <form method="post" enctype="multipart/form-data" id="leaf-form">
+        <div class="form-row"><label class="select-label">Plant type <select name="plant_type"> <option value="Auto detect">Auto detect (recommended)</option>{% for raw, name in crops %}<option value="{{ raw }}" {% if selected_crop == raw %}selected{% endif %}>{{ name }}</option>{% endfor %}</select><small>Choose a crop to narrow the result.</small></label>
+          <label class="dropzone" id="dropzone"><input id="leaf-image" type="file" name="leaf_image" accept="image/jpeg,image/png,image/webp" required><span class="upload-icon">↑</span><strong>Drop your leaf photo here</strong><small>or click to browse · JPG, PNG, WEBP</small></label></div>
+        <div class="preview-row" id="preview-row" hidden><img id="preview" alt="Selected leaf preview"><span id="file-name"></span></div>
+        <button class="primary" type="submit">Analyse plant <span>→</span></button>
+      </form>
+    </section>
+
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    {% if result %}
+    <section class="result-header"><div><p class="eyebrow green">ANALYSIS COMPLETE</p><h2>Your plant-health result</h2></div><span class="confidence-badge">{{ result.confidence }}% confidence</span></section>
+    <section class="result-grid">
+      <article class="image-card"><img src="{{ result.image }}" alt="Uploaded leaf"><p>Uploaded leaf image</p></article>
+      <article class="diagnosis"><div class="metric-grid"><div class="metric"><small>Likely crop</small><strong>{{ result.crop }}</strong></div><div class="metric"><small>Likely condition</small><strong>{{ result.condition }}</strong></div><div class="metric"><small>Visible severity</small><strong class="severity {{ result.severity|lower }}">{{ result.severity }}</strong></div></div>
+      <div class="overview"><h3>What this means</h3><p>{{ result.overview }}</p></div>
+      {% if result.confidence < 65 %}<div class="notice warn"><b>Low confidence.</b> Retake the photo in daylight and confirm the issue locally before treatment.</div>{% elif result.healthy %}<div class="notice good"><b>Healthy prediction.</b> Continue routine monitoring for emerging symptoms.</div>{% else %}<div class="notice"><b>Important.</b> Use treatment options below as a discussion guide, not a prescription.</div>{% endif %}
+      </article>
+    </section>
+    <section class="detail-grid">
+      <article class="detail-card"><span class="number">01</span><h3>Do this now</h3><ul>{% for item in result.actions %}<li>{{ item }}</li>{% endfor %}</ul></article>
+      <article class="detail-card"><span class="number">02</span><h3>Symptoms & spread</h3><ul>{% for item in result.symptoms %}<li>{{ item }}</li>{% endfor %}</ul><p class="muted">{{ result.spread }}</p></article>
+      <article class="detail-card treatment"><span class="number">03</span><h3>Treatment plan</h3><ul>{% for item in result.medication %}<li>{{ item }}</li>{% endfor %}</ul><p class="label-warning">Confirm the disease, crop registration, and product label before applying any treatment.</p></article>
+    </section>
+    <section class="analysis-card"><div><p class="eyebrow green">VISIBLE DAMAGE SCREEN</p><h3>Severity: {{ result.severity }} <span>{{ result.area }}% area estimate</span></h3><p>The red overlay marks areas that may be discoloured or damaged. Shadows, ageing, insects, and injury can look similar, so this is not a lesion diagnosis.</p></div><img src="{{ result.overlay }}" alt="Possible discolouration overlay"></section>
+    {% if result.alternatives %}<section class="alternatives"><h3>Other possible matches</h3>{% for (crop, condition), score in result.alternatives %}<div class="alternative"><span>{{ crop }} · {{ condition }}</span><div><i style="width: {{ score }}%"></i></div><b>{{ score }}%</b></div>{% endfor %}</section>{% endif %}
+    {% endif %}
+  </main><script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>

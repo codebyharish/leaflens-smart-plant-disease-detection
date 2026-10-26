@@ -1,0 +1,9 @@
+{
+  "project": "LeafLens: Smart Plant Disease Detection",
+  "model_architecture": "ConvNeXt-Tiny",
+  "learning_approach": "ImageNet transfer learning fine-tuned on PlantVillage",
+  "dataset": {"name": "PlantVillage", "images": 54305, "crop_types": 14, "crop_disease_classes": 38},
+  "training": {"epochs": 15, "train_validation_split": "85% / 15% stratified split", "random_seed": 42, "optimizer": "AdamW", "loss": "Cross-entropy with label smoothing (0.1)", "scheduler": "Cosine annealing", "image_size": "224 x 224", "hardware": "NVIDIA GeForce RTX 3050 Laptop GPU (CUDA)"},
+  "best_validation_accuracy": 0.9983,
+  "limitations": "Validation accuracy is measured on PlantVillage controlled-background images and must not be presented as real-world field accuracy."
+}
